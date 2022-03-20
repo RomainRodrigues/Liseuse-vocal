@@ -1,0 +1,51 @@
+#!/bin/bash
+
+echo Récupération des images
+docker image pull bigpapoo/text2speech
+
+echo -e "\n"
+
+echo Création volume
+docker volume create liseuse
+
+echo -e "\n"
+
+echo Installation des scripts dans volume
+docker container run -d --name liseuse-tmp -v liseuse:/data bigpapoo/text2speech tail -f /dev/null
+docker cp balise.php liseuse-tmp:/data
+docker cp finish.sh liseuse-tmp:/data
+docker cp config liseuse-tmp:/data
+docker cp lienConfig liseuse-tmp:/data
+
+
+echo Fin installation
+docker container stop liseuse-tmp
+docker container rm liseuse-tmp
+
+echo -e "\n"
+
+echo Lancement des conteneurs
+
+docker container run -d --name liseuse-convertPtag -w /data -v liseuse:/data bigpapoo/text2speech ./balise.php
+docker container run -d --name liseuse-Ptoaudio -w /data -v liseuse:/data bigpapoo/text2speech ./finish.sh
+echo C\'est presque fini\, encore un peu de patience \!
+
+echo -e "\n"
+
+echo Récupération de l\'archive final...
+sleep 2
+./get
+echo Fin de la Récupération de l\'archive
+
+
+echo -e "\n"
+sleep 2
+
+echo Suppression des conteneurs
+./stop.sh
+echo Fin de la Suppression !
+
+echo -e "\n"
+
+echo Merci d\'avoir utiliser notre outil \!
+echo Realisé par Romain, Killian, Lucas, Mathieu

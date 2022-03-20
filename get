@@ -1,0 +1,2 @@
+#!/bin/bash
+docker container cp liseuse-Ptoaudio:/data/archive.tgz .
